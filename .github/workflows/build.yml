@@ -54,37 +54,43 @@ jobs:
         export THEOS_PROJECT_DIR=$PWD/trunk
         cd $THEOS_PROJECT_DIR
 
-        # 源码在老 Makefile 中分散在 Sources/* 子目录下，
-        # 需要改写为 theos 兼容格式
-        cat > Makefile << 'EOF'
+        # 1. 先生成缺失的 svnversion.h
+        mkdir -p Sources/Misc
+        echo '#define SVN_VERSION @"git"' > Sources/Misc/svnversion.h
+
+        # 2. 把源码目录里的文件夹层级拍平，让 theos 直接构建
+        #    theos application.mk 要求源文件在项目根或其子目录，
+        #    所有子目录已经在 Sources/ 下 —— 直接用
+        cat > Makefile << 'MAKEFILE_EOF'
         ARCHS = armv7 armv7s
         TARGET = iphone:6.0:2.0
 
         include $(THEOS)/makefiles/common.mk
 
         APPLICATION_NAME = Terminal
+
         Terminal_FILES = \
-          Sources/main.m \
-          Sources/MobileTerminal.m \
-          Sources/Misc/Color.m \
-          Sources/Misc/ColorMap.m \
-          Sources/Misc/Constants.m \
-          Sources/Misc/Log.m \
-          Sources/Misc/Settings.m \
-          Sources/Misc/Tools.m \
-          Sources/Preferences/ColorWidgets.m \
-          Sources/Preferences/Preferences.m \
-          Sources/Preferences/PreferencesGroup.m \
-          Sources/Preferences/PreferencesDataSource.m \
-          Sources/Terminal/SubProcess.m \
-          Sources/Terminal/VT100Screen.m \
-          Sources/Terminal/VT100Terminal.m \
-          Sources/UI/GestureView.m \
-          Sources/UI/Keyboard.m \
-          Sources/UI/MainViewController.m \
-          Sources/UI/Menu.m \
-          Sources/UI/PieView.m \
-          Sources/UI/PTYTextView.m
+        Sources/main.m \
+        Sources/MobileTerminal.m \
+        Sources/Misc/Color.m \
+        Sources/Misc/ColorMap.m \
+        Sources/Misc/Constants.m \
+        Sources/Misc/Log.m \
+        Sources/Misc/Settings.m \
+        Sources/Misc/Tools.m \
+        Sources/Preferences/ColorWidgets.m \
+        Sources/Preferences/Preferences.m \
+        Sources/Preferences/PreferencesGroup.m \
+        Sources/Preferences/PreferencesDataSource.m \
+        Sources/Terminal/SubProcess.m \
+        Sources/Terminal/VT100Screen.m \
+        Sources/Terminal/VT100Terminal.m \
+        Sources/UI/GestureView.m \
+        Sources/UI/Keyboard.m \
+        Sources/UI/MainViewController.m \
+        Sources/UI/Menu.m \
+        Sources/UI/PieView.m \
+        Sources/UI/PTYTextView.m
 
         Terminal_PRIVATE_FRAMEWORKS = GraphicsServices
         Terminal_FRAMEWORKS = UIKit CoreGraphics Foundation CoreFoundation QuartzCore ImageIO
@@ -92,18 +98,9 @@ jobs:
         Terminal_LDFLAGS = -lobjc
 
         include $(THEOS_MAKE_PATH)/application.mk
+        MAKEFILE_EOF
 
-        before-all::
-          # 生成缺失的 svnversion.h
-          mkdir -p Sources/Misc
-          echo '#define SVN_VERSION @"git"' > Sources/Misc/svnversion.h
-        EOF
-
-        # 如果有原始的 Info.plist 就复制过来
-        if [ -f Info.plist ]; then
-          cp Info.plist v
-        fi
-
+        # 3. theos 用 gmake
         export PATH="$HOME/theos/bin:$PATH"
         gmake package FINALVERSION=1.0.0 IPHONEOS_DEPLOYMENT_TARGET=6.0
         ls -la packages/
