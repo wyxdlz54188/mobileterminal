@@ -1,0 +1,9 @@
+K 10
+svn:ignore
+V 46
+build
+Terminal.app
+Terminal*.zip
+svnversion.h
+
+END

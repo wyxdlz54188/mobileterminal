@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/!svn/ver/352/tags/iphoneos_1.x
+END
+ROADMAP
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/352/tags/iphoneos_1.x/ROADMAP
+END
+Info.plist
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/352/tags/iphoneos_1.x/Info.plist
+END
+CHANGELOG
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/352/tags/iphoneos_1.x/CHANGELOG
+END
+.svnignore
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/352/tags/iphoneos_1.x/.svnignore
+END
+Makefile.build
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/352/tags/iphoneos_1.x/Makefile.build
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/352/tags/iphoneos_1.x/README
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/352/tags/iphoneos_1.x/Makefile
+END

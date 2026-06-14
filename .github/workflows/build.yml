@@ -1,0 +1,115 @@
+name: Build NewTerm iOS 6
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build NewTerm (iOS 6.0)
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install Theos dependencies
+      run: |
+        brew install make dpkg libffi ldid
+
+    - name: Setup Theos
+      run: |
+        git clone --recursive --depth 1 https://github.com/theos/theos.git $HOME/theos
+        echo "THEOS=$HOME/theos" >> $GITHUB_ENV
+        echo "$HOME/theos/bin" >> $GITHUB_PATH
+
+    - name: Download iOS 6.0 SDK
+      run: |
+        mkdir -p $THEOS/sdks
+        echo "=== Downloading iPhoneOS6.0 SDK ==="
+        cd /tmp
+        curl -L -o iPhoneOS6.0.sdk.zip "https://github.com/GrowtopiaJaw/iPhoneOS-SDK/releases/download/v1.0/iPhoneOS6.0.sdk.zip"
+        echo "Downloaded file: $(ls -lh iPhoneOS6.0.sdk.zip)"
+        echo "Unzipping..."
+        unzip iPhoneOS6.0.sdk.zip
+        echo ""
+        echo "=== Files after unzip ==="
+        ls -la
+        echo "Renaming 6.0 to iPhoneOS6.0.sdk..."
+        mv 6.0 $THEOS/sdks/iPhoneOS6.0.sdk
+        rm -f iPhoneOS6.0.sdk.zip
+        echo ""
+        echo "=== SDKs in THEOS ==="
+        ls -la $THEOS/sdks/
+        echo ""
+        echo "SDK structure:"
+        ls $THEOS/sdks/iPhoneOS6.0.sdk/
+        echo ""
+        echo "SDK size:"
+        du -sh $THEOS/sdks/iPhoneOS6.0.sdk
+
+    - name: Build NewTerm
+      run: |
+        export THEOS_PROJECT_DIR=$PWD/trunk
+        cd $THEOS_PROJECT_DIR
+
+        # 源码在老 Makefile 中分散在 Sources/* 子目录下，
+        # 需要改写为 theos 兼容格式
+        cat > Makefile << 'EOF'
+        ARCHS = armv7 armv7s
+        TARGET = iphone:6.0:2.0
+
+        include $(THEOS)/makefiles/common.mk
+
+        APPLICATION_NAME = Terminal
+        Terminal_FILES = \
+          Sources/main.m \
+          Sources/MobileTerminal.m \
+          Sources/Misc/Color.m \
+          Sources/Misc/ColorMap.m \
+          Sources/Misc/Constants.m \
+          Sources/Misc/Log.m \
+          Sources/Misc/Settings.m \
+          Sources/Misc/Tools.m \
+          Sources/Preferences/ColorWidgets.m \
+          Sources/Preferences/Preferences.m \
+          Sources/Preferences/PreferencesGroup.m \
+          Sources/Preferences/PreferencesDataSource.m \
+          Sources/Terminal/SubProcess.m \
+          Sources/Terminal/VT100Screen.m \
+          Sources/Terminal/VT100Terminal.m \
+          Sources/UI/GestureView.m \
+          Sources/UI/Keyboard.m \
+          Sources/UI/MainViewController.m \
+          Sources/UI/Menu.m \
+          Sources/UI/PieView.m \
+          Sources/UI/PTYTextView.m
+
+        Terminal_PRIVATE_FRAMEWORKS = GraphicsServices
+        Terminal_FRAMEWORKS = UIKit CoreGraphics Foundation CoreFoundation QuartzCore ImageIO
+        Terminal_CFLAGS = -std=gnu99 -I. -ISources -ISources/Misc -ISources/Preferences -ISources/Terminal -ISources/UI
+        Terminal_LDFLAGS = -lobjc
+
+        include $(THEOS_MAKE_PATH)/application.mk
+
+        before-all::
+          # 生成缺失的 svnversion.h
+          mkdir -p Sources/Misc
+          echo '#define SVN_VERSION @"git"' > Sources/Misc/svnversion.h
+        EOF
+
+        # 如果有原始的 Info.plist 就复制过来
+        if [ -f Info.plist ]; then
+          cp Info.plist v
+        fi
+
+        export PATH="$HOME/theos/bin:$PATH"
+        gmake package FINALVERSION=1.0.0 IPHONEOS_DEPLOYMENT_TARGET=6.0
+        ls -la packages/
+
+    - name: Upload Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: newterm-ios6
+        path: trunk/packages/*.deb
