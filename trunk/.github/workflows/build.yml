@@ -67,7 +67,7 @@ jobs:
             Sources/UI/PieView.m \
             Sources/UI/PTYTextView.m"
 
-          INCLUDES="-I. -ISources -ISources/Misc -ISources/Preferences -ISources/Terminal -ISources/UI"
+          INCLUDES="-I. -ISources -ISources/Misc -ISources/Preferences -ISources/Terminal -ISources/UI -ISources/Stubs"
 
           # 逐个编译 .m -> .o
           OBJS=""

@@ -77,8 +77,9 @@
 + (MobileTerminal *)application;
 + (Menu *)menu;
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
-- (void)applicationSuspend:(GSEventRef)event;
+ - (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
+// GSEventRef is not available in iOS 6 SDK; use void* for compatibility
+- (void)applicationSuspend:(void*)event;
 
 - (void)handleStreamOutput:(const char *)c length:(unsigned int)len identifier:(int)tid;
 - (void)handleKeyPress:(unichar)c;

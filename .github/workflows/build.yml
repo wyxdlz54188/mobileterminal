@@ -94,7 +94,7 @@ jobs:
 
         Terminal_PRIVATE_FRAMEWORKS = GraphicsServices
         Terminal_FRAMEWORKS = UIKit CoreGraphics Foundation CoreFoundation QuartzCore ImageIO
-        Terminal_CFLAGS = -std=gnu99 -I. -ISources -ISources/Misc -ISources/Preferences -ISources/Terminal -ISources/UI
+        Terminal_CFLAGS = -std=gnu99 -I. -ISources -ISources/Misc -ISources/Preferences -ISources/Terminal -ISources/UI -ISources/Stubs
         Terminal_LDFLAGS = -lobjc
 
         include $(THEOS_MAKE_PATH)/application.mk

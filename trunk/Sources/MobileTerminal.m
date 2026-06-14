@@ -145,7 +145,7 @@
 }
 
 // NOTE: must override this method to prevent application termination
-- (void)applicationSuspend:(GSEventRef)event
+- (void)applicationSuspend:(void*)event
 {
     if ([self shouldTerminate])
         [self terminate];
@@ -263,10 +263,10 @@
     }
 }
 
-- (void)statusBarMouseUp:(GSEventRef)event
+- (void)statusBarMouseUp:(void*)event
 {
     if (numTerminals > 1) {
-        CGPoint pos = GSEventGetLocationInWindow(event).origin;
+        CGPoint pos = GSEventGetLocationInWindow((GSEventRef)event).origin;
         float width = landscape ? window.frame.size.height : window.frame.size.width;
         if (pos.x > width/2 && pos.x < width *3/4) {
             [self prevTerminal];
